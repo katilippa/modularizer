@@ -1,0 +1,23 @@
+select distinct "CppEdge".from,
+                 fromFile.id as fromId,
+                 fromFile.path as fromPath,
+                 "CppEdge".to,
+                 toFile.id as toId,
+                 toFile.path as toPath,
+                 "CppEdge".type
+from ("CppEdge"
+      join ((select "File".path,
+                    "File".id,
+                    "CppEdge".to
+            from "File"
+                 join "CppEdge"
+                 on "CppEdge"."from" = "File".id)
+      as fromFile
+         join (select "File".path,
+                      "File".id
+               from "File"
+                     join "CppEdge"
+                     on "CppEdge"."to" = "File".id)
+                     as toFile
+         on fromFile."to" = toFile.id)
+      on "CppEdge"."from" = fromFile.id and "CppEdge"."to" = toFile.id)

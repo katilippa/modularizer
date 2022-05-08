@@ -33,28 +33,9 @@ class App:
                              ]
 
     def build_graph(self, dirs_to_exclude):
-        self.database_connection.cursor.execute(
-            'select distinct "CppEdge".from, \
-                             fromFile.id as fromId, \
-                             fromFile.path as fromPath, \
-                             "CppEdge".to, \
-                             toFile.id as toId, \
-                             toFile.path as toPath, \
-                             "CppEdge".type \
-            from ("CppEdge" \
-                 join ((select "File".path, \
-                               "File".id, \
-                               "CppEdge".to \
-                        from "File" \
-                             join "CppEdge" \
-                                      on "CppEdge"."from" = "File".id) as fromFile \
-            join (select "File".path, \
-                         "File".id \
-                  from "File" \
-                        join "CppEdge" \
-                                on "CppEdge"."to" = "File".id) as toFile \
-                on fromFile."to" = toFile.id) \
-                      on "CppEdge"."from" = fromFile.id and "CppEdge"."to" = toFile.id)')
+        with open("data/cpp_edge_query.txt", "r") as f:
+            query = f.read()
+        self.database_connection.cursor.execute(query)
 
         self.multi_di_graph = nx.MultiDiGraph()
         for record in self.database_connection.cursor.fetchall():

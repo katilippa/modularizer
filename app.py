@@ -108,7 +108,9 @@ class App:
         print(self.modules_to_json())
 
     def save_modules_to_file(self):
-        file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results",
+        results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
+        os.makedirs(results_dir, exist_ok=True)
+        file_path = os.path.join(results_dir,
                                  f"{self.database_connection.database}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(self.modules_to_json())

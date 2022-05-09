@@ -1,0 +1,5 @@
+select path, filename, "FileContent".content as "content"
+from "File"
+      join "FileContent"
+      on "File".content = "FileContent".hash
+      where path in (<LIST_OF_PATHS>)

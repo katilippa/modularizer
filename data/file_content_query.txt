@@ -1,4 +1,4 @@
-select path, filename, "FileContent".content as "content"
+select id, path, filename, "FileContent".content as "content"
 from "File"
       join "FileContent"
       on "File".content = "FileContent".hash

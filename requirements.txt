@@ -1,0 +1,5 @@
+matplotlib>=3.5.1
+networkx>=2.8
+distinctipy>=1.2.1
+psycopg2>=2.9.3
+numpy>=1.22.3

@@ -8,13 +8,13 @@ class DatabaseConnection:
         self.host = host
         self.port = port
         self.connection = psycopg2.connect(database=database, user=user, host=host, port=port)
-        # TODO handle connection failure
-        print("Successful database connection: " + str(self))
         self.cursor = self.connection.cursor()
 
     def __del__(self) -> None:
-        self.cursor.close()
-        self.connection.close()
+        if self.cursor is not None:
+            self.cursor.close()
+        if self.connection is not None:
+            self.connection.close()
 
     def __str__(self) -> str:
         return "database=" + self.database + ", user=" + self.user + ", host=" + self.host + ", port=" + self.port

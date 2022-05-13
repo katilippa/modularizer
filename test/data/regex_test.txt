@@ -1,0 +1,29 @@
+#ifndef FOO_H
+#define FOO_H
+
+//#include <algorithm>
+/* #include <map> */
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "bar.h"
+
+// ...
+
+
+#define PI   3.14159
+
+namespace test {
+    std::string bar::Bar() { return "bar"; }; // inline comment
+    namespace foo {
+        void Foo(int /* argument */) {};
+    }
+}
+
+/********
+ block comment
+*********/
+
+#endif
+// eof

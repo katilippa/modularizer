@@ -1,29 +1,32 @@
 import pathlib
-import platform
 import re
+from typing import List, Tuple
 import unittest
 
 from app import App, RegexPatterns
+from console.console_menu import ConsoleMenu
 from database_connection import DatabaseConnection
+from user_interface.consolse import Console
+from user_interface.user_interface import UserInterface
+
 
 # TODO: make tests independent from parsed projects
 
-class MyTestCase(unittest.TestCase):
-    app = App(database_connection=DatabaseConnection(database="CodeCompass", user='postgres', host='127.0.0.1',
-                                                          port='5432'))
+class MockUserInterface(Console):
+    def load_menu_options(self, menu_options: List[Tuple[str, callable]]) -> None:
+        pass
 
-    def test_determinism(self):
-        modules = []
-        for i in range(10):
-            app = App(database_connection=DatabaseConnection(database="CodeCompass", user='postgres', host='127.0.0.1',
-                                                          port='5432'))
-            modules.append(app.communities)
-        i = 1
-        while i < 10:
-            self.assertEqual(modules[i-1], modules[i])
-            self.assertEqual(len(modules[i]), len(modules[i-1]))
-            print(f"i: {i-1}, len: {len(modules[i-1])}, len of first: {len(modules[i-1][0])}")
-            i += 1
+    def closed_question(self, question: str) -> bool:
+        if 'Connect to database?' in question:
+            return True
+        else:
+            return False
+
+class MyTestCase(unittest.TestCase):
+    app = App(MockUserInterface(), DatabaseConnection(database="CodeCompass",
+                                            user='postgres',
+                                            host='127.0.0.1',
+                                            port='5432'))
 
     def test_find_module_id_by_file_path(self):
         module_id = self.app._find_module_id_by_file_path("webserver/requesthandler.h")
@@ -77,9 +80,12 @@ class MyTestCase(unittest.TestCase):
         self.app.load_modules_from_file(r'C:\Users\lippa\Google Drive\ELTE\Szakdolgozat\modularizer\results\CodeCompass_20220509_005153.json')
         self.assertGreater(len(self.app.communities), 0)
 
-    def test_platform(self):
-        print(platform.uname())
-        print(platform.platform())
+    def test_user_interface(self):
+        try:
+            ui = UserInterface()
+        except TypeError as te:
+            self.assertEqual(str(te), "only children of 'UserInterface' may be instantiated")
+        self.fail("'UserInterface' should not be instantiatable, only its children")
 
 if __name__ == '__main__':
     unittest.main()

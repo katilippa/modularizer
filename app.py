@@ -40,30 +40,32 @@ class App:
 
     results_dir = pathlib.Path(__file__).resolve().parent.joinpath('results')
 
-    def __init__(self, ui: UserInterface):
+    def __init__(self, ui: UserInterface, database_connection: DatabaseConnection = None):
         self.ui = ui
-        # self.database_connection = DatabaseConnection(database="CodeCompass", user='postgres', host='127.0.0.1', port='5432')
-        self.database_connections = None
-        try:
-            file_path = pathlib.Path(__file__).resolve().parent.joinpath('data').joinpath('database_connections.json')
-            with open(file_path, "r") as f:
-                database_connections = json.load(f)
-        except Exception as ex:
-            self.ui.info_msg(f'Could not load database connections: {str(ex)}')
-        if database_connections is None:
-            connection = self.ui.get_database_connection()
-        else:
-            connection = database_connections[0]
-            if not ui.closed_question(f'default database connection:\n{connection}\nConnect to database?'):
-                connection = self.ui.get_database_connection()
-        while True:
+        if database_connection is None:
+            self.database_connection = None
             try:
-                self._connect_to_database(connection)
-                break
-            except Exception:
-                if not self.ui.closed_question('Connect to other database?'):
-                    ui.info_msg('Closing the application...')
-                    raise SystemExit()
+                file_path = pathlib.Path(__file__).resolve().parent.joinpath('data').joinpath('database_connections.json')
+                with open(file_path, "r") as f:
+                    database_connections = json.load(f)
+            except Exception as ex:
+                self.ui.info_msg(f'Could not load database connections: {str(ex)}')
+            if database_connections is None:
+                connection = self.ui.get_database_connection()
+            else:
+                connection = database_connections[0]
+                if not ui.closed_question(f'default database connection:\n{connection}\nConnect to database?'):
+                    connection = self.ui.get_database_connection()
+            while True:
+                try:
+                    self._connect_to_database(connection)
+                    break
+                except Exception:
+                    if not self.ui.closed_question('Connect to other database?'):
+                        ui.info_msg('Closing the application...')
+                        raise SystemExit()
+        else:
+            self.database_connection = database_connection
 
         self.multi_di_graph = nx.MultiDiGraph()
         self.graph = nx.Graph()

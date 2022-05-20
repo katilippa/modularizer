@@ -45,7 +45,8 @@ class App:
         if database_connection is None:
             self.database_connection = None
             try:
-                file_path = pathlib.Path(__file__).resolve().parent.joinpath('data').joinpath('database_connections.json')
+                file_path = pathlib.Path(__file__).resolve().parent.joinpath('data').joinpath(
+                    'default_database_connection.json')
                 with open(file_path, "r") as f:
                     database_connections = json.load(f)
             except Exception as ex:
@@ -61,7 +62,9 @@ class App:
                     self._connect_to_database(connection)
                     break
                 except Exception:
-                    if not self.ui.closed_question('Connect to other database?'):
+                    if self.ui.closed_question('Change connection?'):
+                        connection = self.ui.get_database_connection()
+                    else:
                         ui.info_msg('Closing the application...')
                         raise SystemExit()
         else:
@@ -88,13 +91,16 @@ class App:
     def _connect_to_database(self, connection: dict):
         while True:
             try:
-                self.database_connection = DatabaseConnection(connection["database"], connection["user"],
-                                                              connection["host"], connection["port"])
+                self.database_connection = DatabaseConnection(connection)
                 self.ui.info_msg("Successful database connection: " + str(self.database_connection))
                 break
             except Exception as ex:
-                if not self.ui.closed_question('Retry?'):
-                    raise ex
+                if 'no password supplied' in str(ex):
+                    connection['password'] = self.ui.get_password()
+                else:
+                    self.ui.info_msg(str(ex))
+                    if not self.ui.closed_question('Retry?'):
+                        raise ex
 
     def build_graph(self) -> None:
         query_file_path = pathlib.Path(__file__).resolve().parent.joinpath('data', 'cpp_edge_query.txt')

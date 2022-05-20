@@ -1,4 +1,5 @@
 import pathlib
+from getpass import getpass
 from typing import List, Tuple
 
 import networkx as nx
@@ -18,6 +19,9 @@ class Console(UserInterface):
 
     def select_database_connection(self):
         pass
+
+    def get_password(self) -> str:
+        return getpass('password: ')
 
     def get_database_connection(self) -> dict:
         connection = dict()

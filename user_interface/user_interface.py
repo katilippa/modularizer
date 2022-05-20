@@ -18,6 +18,9 @@ class UserInterface:
     def select_database_connection(self):
         pass
 
+    def get_password(self) -> str:
+        pass
+
     def get_database_connection(self) -> dict:
         pass
 

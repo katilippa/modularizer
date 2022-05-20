@@ -1,7 +1,7 @@
 [
   {
     "database": "CodeCompass",
-    "user": "postgres",
+    "user": "compass",
     "host": "localhost",
     "port": "5432"
   }

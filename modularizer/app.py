@@ -10,8 +10,8 @@ import pathlib
 import re
 from typing import *
 
-from database_connection import DatabaseConnection
-from user_interface.user_interface import UserInterface
+from modularizer.database_connection import DatabaseConnection
+from modularizer.user_interface.user_interface import UserInterface
 
 
 @dataclass
@@ -32,7 +32,7 @@ class RegexPatterns(Enum):
     INCLUDED_FILES = r'(?:^#[^\S\n\r]*include[^\S\n\r]*)(<[^>]+>|"[^"]+")(?:\n|\\n|$)'
 
 
-class App:
+class Modularizer:
     _edge_type = {0: "Provides",
                   1: "Implements",
                   2: "Uses",

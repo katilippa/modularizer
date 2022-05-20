@@ -3,11 +3,9 @@ import re
 from typing import List, Tuple
 import unittest
 
-from app import App, RegexPatterns
-from console.console_menu import ConsoleMenu
-from database_connection import DatabaseConnection
-from user_interface.consolse import Console
-from user_interface.user_interface import UserInterface
+from modularizer.app import RegexPatterns
+from modularizer.user_interface import Console
+from modularizer.user_interface import UserInterface
 
 
 # TODO: make tests independent from parsed projects
@@ -70,7 +68,6 @@ class MyTestCase(unittest.TestCase):
         included_files = re.findall(RegexPatterns.INCLUDED_FILES.value, file_content, re.MULTILINE)
         self.assertEqual(len(includes), 4)
         self.assertEqual(len(comments), 5)
-        #print(included_files)
         self.assertEqual(len(included_files), 4)
 
     def test_generate_module_file(self):

@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 from console import console_util
 from console.console_menu import ConsoleMenu
-from user_interface.user_interface import UserInterface
+from modularizer.user_interface.user_interface import UserInterface
 
 
 class Console(UserInterface):

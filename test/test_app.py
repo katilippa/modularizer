@@ -25,12 +25,12 @@ class MockUserInterface(Console):
 
 
 class MyTestCase(unittest.TestCase):
-    app = App(MockUserInterface(), DatabaseConnection({
-                                                        "database": "CodeCompass",
-                                                        "user": "compass",
-                                                        "host": "localhost",
-                                                        "port": "5432"
-                                                       }))
+    # app = App(MockUserInterface(), DatabaseConnection({
+    #                                                     "database": "CodeCompass",
+    #                                                     "user": "compass",
+    #                                                     "host": "localhost",
+    #                                                     "port": "5432"
+    #                                                    }))
 
     def test_find_module_id_by_file_path(self):
         module_id = self.app._find_module_id_by_file_path("webserver/requesthandler.h")
@@ -84,9 +84,9 @@ class MyTestCase(unittest.TestCase):
     def test_user_interface(self):
         try:
             ui = UserInterface()
-        except TypeError as te:
-            self.assertEqual(str(te), "only children of 'UserInterface' may be instantiated")
-        self.fail("'UserInterface' should not be instantiatable, only its children")
+            self.fail("'UserInterface' should not be instantiatable, only its children")
+        except Exception as ex:
+            self.assertEqual(str(ex), "only children of 'UserInterface' may be instantiated")
 
 if __name__ == '__main__':
     unittest.main()

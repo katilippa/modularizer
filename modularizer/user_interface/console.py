@@ -1,15 +1,13 @@
-import pathlib
-from getpass import getpass
-from typing import List, Tuple
-
-import networkx as nx
 from distinctipy import distinctipy
+from getpass import getpass
 from matplotlib import pyplot as plt
+import networkx as nx
+import pathlib
+from typing import List, Tuple
 
 from console import console_util
 from console.console_menu import ConsoleMenu
 from modularizer.user_interface.user_interface import UserInterface
-
 
 class Console(UserInterface):
     menu = None

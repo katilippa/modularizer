@@ -12,6 +12,7 @@ from user_interface.user_interface import UserInterface
 
 # TODO: make tests independent from parsed projects
 
+
 class MockUserInterface(Console):
     def load_menu_options(self, menu_options: List[Tuple[str, callable]]) -> None:
         pass
@@ -22,11 +23,14 @@ class MockUserInterface(Console):
         else:
             return False
 
+
 class MyTestCase(unittest.TestCase):
-    app = App(MockUserInterface(), DatabaseConnection(database="CodeCompass",
-                                            user='postgres',
-                                            host='127.0.0.1',
-                                            port='5432'))
+    app = App(MockUserInterface(), DatabaseConnection({
+                                                        "database": "CodeCompass",
+                                                        "user": "compass",
+                                                        "host": "localhost",
+                                                        "port": "5432"
+                                                       }))
 
     def test_find_module_id_by_file_path(self):
         module_id = self.app._find_module_id_by_file_path("webserver/requesthandler.h")
@@ -57,9 +61,6 @@ class MyTestCase(unittest.TestCase):
 
     def test_regex(self):
         file_path = (pathlib.PurePosixPath(__file__).parent).joinpath('data').joinpath("regex_test.txt")
-        # descriptor, results = self.app._query_file_contents(
-        #     ["/home/katilippa/projects/CodeCompass/webserver/include/webserver/mongoose.h"])
-        # file_path = pathlib.PurePosixPath("W:").joinpath(results[0][self.app._find_column_index(descriptor, 'path')])
         with open(file_path, 'r', encoding='utf-8') as f:
             file_content = f.read()
         comments = re.findall(RegexPatterns.COMMENT.value, file_content, re.MULTILINE)
@@ -77,7 +78,7 @@ class MyTestCase(unittest.TestCase):
         self.app._generate_module_file(module_id, "webserver")
 
     def test_load_modules_from_file(self):
-        self.app.load_modules_from_file(r'C:\Users\lippa\Google Drive\ELTE\Szakdolgozat\modularizer\results\CodeCompass_20220509_005153.json')
+        self.app.load_modules_from_file(r'results\CodeCompass_20220509_005153.json')
         self.assertGreater(len(self.app.communities), 0)
 
     def test_user_interface(self):

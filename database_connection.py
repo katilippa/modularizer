@@ -2,14 +2,6 @@ import psycopg2
 
 
 class DatabaseConnection:
-    def __init__(self, database: str, user: str, host: str, port: str, password: str = None) -> None:
-        self.database = database
-        self.user = user
-        self.host = host
-        self.port = port
-        self.connection = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
-        self.cursor = self.connection.cursor()
-
     def __init__(self, connection: dict) -> None:
         self.database = connection["database"]
         self.user = connection["user"]

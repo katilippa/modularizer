@@ -9,6 +9,7 @@ from console import console_util
 from console.console_menu import ConsoleMenu
 from modularizer.user_interface.user_interface import UserInterface
 
+
 class Console(UserInterface):
     menu = None
 

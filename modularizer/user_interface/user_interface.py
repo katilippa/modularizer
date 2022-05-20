@@ -69,5 +69,5 @@ class UserInterface:
         pass
 
     @abstractmethod
-    def display_graph(self, graph: nx.Graph) -> None:
+    def display_module(self, graph: nx.Graph) -> None:
         pass

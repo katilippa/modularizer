@@ -101,6 +101,9 @@ class Modularizer:
                     self.ui.info_msg(str(ex))
                     if not self.ui.closed_question('Retry?'):
                         raise ex
+                    else:
+                        if 'password' in connection.keys():
+                            connection['password'] = self.ui.get_password()
 
     def build_graph(self) -> None:
         query_file_path = pathlib.Path(__file__).resolve().parent.joinpath('data', 'cpp_edge_query.txt')
@@ -189,7 +192,7 @@ class Modularizer:
     def display_module(self) -> None:
         module_id = self.ui.get_module_id(len(self.communities))
         community = self.multi_di_graph.subgraph(self.communities[module_id])
-        self.ui.display_graph(community)
+        self.ui.display_module(community)
 
     def _modules_to_dict(self) -> Dict[int, List[str]]:
         modules = dict()

@@ -11,7 +11,8 @@ from modularizer.user_interface.user_interface import UserInterface
 
 
 class Console(UserInterface):
-    menu = None
+    _menu = None
+    _pos = None
 
     def get_if_get_database_connection_ok(self):
         pass
@@ -40,7 +41,7 @@ class Console(UserInterface):
         return console_util.closed_question(question)
 
     def load_menu_options(self, menu_options: List[Tuple[str, callable]]) -> None:
-        self.menu = ConsoleMenu(menu_options, 'Options')
+        self._menu = ConsoleMenu(menu_options, 'Options')
 
     def get_existing_directory_path(self, msg: str) -> str:
         while True:
@@ -75,24 +76,35 @@ class Console(UserInterface):
                     raise Exception('Operation aborted')
 
     def display_dependency_graph(self, multi_di_graph: nx.MultiDiGraph) -> None:
-        pos = nx.spring_layout(nx.Graph(multi_di_graph))
-        nx.draw(multi_di_graph, with_labels=True, pos=pos, font_size=8)
+        self._set_pos(nx.Graph(multi_di_graph))
+        # plt.figure(figsize=(16, 10))
+        plt.switch_backend('TkAgg')
+        mng = plt.get_current_fig_manager()
+        ### works on Ubuntu??? >> did NOT working on windows
+        # mng.resize(*mng.window.maxsize())
+        mng.window.state('zoomed')
+        nx.draw(multi_di_graph, with_labels=True, pos=self._pos, font_size=8)
         # edge_labels = nx.get_edge_attributes(self.di_graph, 'label')
         # nx.draw_networkx_edge_labels(self.graph, edge_labels=edge_labels, pos=pos)
+
         plt.show()
 
     def display_all_modules(self, multi_di_graph: nx.MultiDiGraph, communities: list) -> None:
         graph = nx.Graph(multi_di_graph)
-        pos = nx.spring_layout(graph)
-        nx.draw(multi_di_graph, with_labels=True, pos=pos, font_size=8)
+        self._set_pos(graph)
+        nx.draw(multi_di_graph, with_labels=True, pos=self._pos, font_size=8)
         colors = distinctipy.get_colors(len(communities))
         for i in range(len(communities)):
-            nx.draw_networkx_nodes(graph, pos, nodelist=communities[i], node_color=[[c for c in colors[i]]],
+            nx.draw_networkx_nodes(graph, self._pos, nodelist=communities[i], node_color=[[c for c in colors[i]]],
                                    label=i)
         plt.legend()
         plt.show()
 
-    def display_graph(self, graph: nx.Graph) -> None:
-        pos = nx.spring_layout(nx.Graph(graph))
+    def display_module(self, graph: nx.Graph) -> None:
+        pos = nx.spring_layout(nx.Graph(graph), seed=1)
         nx.draw(graph, with_labels=True, pos=pos, font_size=8)
         plt.show()
+
+    def _set_pos(self, graph: nx.Graph) -> None:
+        if self._pos is None:
+            self._pos = nx.spring_layout(graph, seed=3)

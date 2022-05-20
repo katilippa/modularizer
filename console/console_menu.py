@@ -30,7 +30,7 @@ class ConsoleMenu:
         while item < 1 or item > len(self.options) + 1:
             print("Invalid option")
             self.print_options()
-            self.get_selected_item()
+            item = self.get_selected_item()
 
         if item <= len(self.options):
             while True:

@@ -13,9 +13,9 @@ class ConsoleMenu:
         print(f"------------------ {self.title} ------------------")
         i = 0
         for i in range(0, len(self.options)):
-            print("\t\t" + str(i+1) + ". " + self.options[i][0])
+            print("\t" + str(i+1) + ". " + self.options[i][0])
         i += 1
-        print("\t\t" + str(i + 1) + ". " + "Exit")
+        print("\t" + str(i + 1) + ". " + "Exit")
 
     def get_selected_item(self) -> int:
         str_response = input("option: ")

@@ -117,7 +117,9 @@ class Console(UserInterface):
                 nx.draw_networkx_nodes(graph, self._pos, nodelist=communities[i], node_color=[[c for c in colors[i]]],
                                        label=i,
                                        node_size=[node_min_size + d[k] * multiplier for k in d if k in communities[i]])
-                plt.legend()
+                lgnd = plt.legend()
+                for handle in lgnd.legendHandles:
+                    handle._sizes = [200]
 
         nx.draw_networkx_labels(graph, self._pos, font_size=7)
 

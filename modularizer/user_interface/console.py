@@ -3,7 +3,13 @@ from getpass import getpass
 from matplotlib import pyplot as plt
 import networkx as nx
 import pathlib
+import sys
+import time
+from tkinter import Tk
 from typing import List, Tuple
+
+from matplotlib.backends._backend_tk import NavigationToolbar2Tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from console import console_util
 from console.console_menu import ConsoleMenu
@@ -78,16 +84,29 @@ class Console(UserInterface):
     def display_dependency_graph(self, multi_di_graph: nx.MultiDiGraph) -> None:
         self._set_pos(nx.Graph(multi_di_graph))
         # plt.figure(figsize=(16, 10))
-        plt.switch_backend('TkAgg')
-        mng = plt.get_current_fig_manager()
+        # plt.switch_backend('TkAgg')
+        # mng = plt.get_current_fig_manager()
         ### works on Ubuntu??? >> did NOT working on windows
         # mng.resize(*mng.window.maxsize())
-        mng.window.state('zoomed')
+        #
+        # mng.window.attributes('-zoomed', True)
+        #
+        # mng.window.state('zoomed')
+        # mng.window.showMaximized()
+        root = Tk()
+        root.title('Modularizer')
+        # root.iconphoto(False, 'info.png')
+        root.state('zoomed')
+        canvas = FigureCanvasTkAgg(plt.figure(), master=root)
+        canvas.get_tk_widget().pack(fill='both', expand=True)
         nx.draw(multi_di_graph, with_labels=True, pos=self._pos, font_size=8)
+        toolbar = NavigationToolbar2Tk(canvas, root)
+        toolbar.update()
+        canvas.draw()
         # edge_labels = nx.get_edge_attributes(self.di_graph, 'label')
         # nx.draw_networkx_edge_labels(self.graph, edge_labels=edge_labels, pos=pos)
 
-        plt.show()
+        # plt.show()
 
     def display_all_modules(self, multi_di_graph: nx.MultiDiGraph, communities: list) -> None:
         graph = nx.Graph(multi_di_graph)

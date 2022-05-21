@@ -55,8 +55,8 @@ class Modularizer:
                 connection = self.ui.get_database_connection()
             else:
                 connection = database_connections[0]
+                c = connection.copy()
                 if 'password' in connection.keys():
-                    c = connection.copy()
                     del c['password']
                 if not ui.closed_question(f'default database connection:\n{c}\nConnect to database?'):
                     connection = self.ui.get_database_connection()

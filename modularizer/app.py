@@ -55,7 +55,10 @@ class Modularizer:
                 connection = self.ui.get_database_connection()
             else:
                 connection = database_connections[0]
-                if not ui.closed_question(f'default database connection:\n{connection}\nConnect to database?'):
+                if 'password' in connection.keys():
+                    c = connection.copy()
+                    del c['password']
+                if not ui.closed_question(f'default database connection:\n{c}\nConnect to database?'):
                     connection = self.ui.get_database_connection()
             while True:
                 try:
@@ -127,7 +130,7 @@ class Modularizer:
             project_root = self.ui.get_user_input(
                 f"Could not identify project root.\nEnter the parsed project's root directory")
         else:
-            project_root = project_root[0:project_root.find(project_name) + len(project_name)]
+            project_root = project_root[0:project_root.find('/', project_root.find(project_name))]
             self.ui.info_msg(f'Projec root: {project_root}')
 
         build_dir_found = False

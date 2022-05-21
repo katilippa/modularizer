@@ -61,11 +61,11 @@ class UserInterface:
         pass
 
     @abstractmethod
-    def display_dependency_graph(self, multi_di_graph: nx.MultiDiGraph) -> None:
+    def display_dependency_graph(self, graph: nx.Graph) -> None:
         pass
 
     @abstractmethod
-    def display_all_modules(self, multi_di_graph: nx.MultiDiGraph, communities: list) -> None:
+    def display_all_modules(self, graph: nx.Graph, communities: list) -> None:
         pass
 
     @abstractmethod

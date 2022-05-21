@@ -81,48 +81,77 @@ class Console(UserInterface):
                 if not self.closed_question(f'invalid module name\nTry again?'):
                     raise Exception('Operation aborted')
 
-    def display_dependency_graph(self, multi_di_graph: nx.MultiDiGraph) -> None:
-        self._set_pos(nx.Graph(multi_di_graph))
-        # plt.figure(figsize=(16, 10))
-        # plt.switch_backend('TkAgg')
-        # mng = plt.get_current_fig_manager()
-        ### works on Ubuntu??? >> did NOT working on windows
-        # mng.resize(*mng.window.maxsize())
-        #
-        # mng.window.attributes('-zoomed', True)
-        #
-        # mng.window.state('zoomed')
-        # mng.window.showMaximized()
+    def display_dependency_graph(self, graph: nx.Graph) -> None:
+        self._display_graph(graph)
+
+    def display_all_modules(self, graph: nx.Graph, communities: list) -> None:
+        colors = distinctipy.get_colors(len(communities))
+        self._display_graph(graph, communities, colors)
+
+    def display_module(self, graph: nx.Graph) -> None:
+        self._display_graph(graph)
+
+    def _display_graph(self, graph: nx.Graph, communities: list = None,
+                       colors: List[Tuple[float, float, float]] = None) -> None:
+        self._pos = nx.spring_layout(graph, seed=3)
         root = Tk()
         root.title('Modularizer')
         # root.iconphoto(False, 'info.png')
-        root.state('zoomed')
-        canvas = FigureCanvasTkAgg(plt.figure(), master=root)
-        canvas.get_tk_widget().pack(fill='both', expand=True)
-        nx.draw(multi_di_graph, with_labels=True, pos=self._pos, font_size=8)
+        try:
+            root.state('zoomed')
+        except Exception:
+            root.attributes('-zoomed', True)
+        # plt.switch_backend('TkAgg')
+        fig = plt.figure()
+        canvas = FigureCanvasTkAgg(fig, master=root)
+        fig.set_tight_layout(True)
+
+        node_min_size = 450
+        multiplier = 50
+        d = dict(graph.degree())
+        if communities is None or colors is None:
+            d = dict(graph.degree())
+            nx.draw_networkx_nodes(graph, self._pos, node_size=[node_min_size+d[k]*multiplier for k in d])
+        else:
+            for i in range(len(communities)):
+                nx.draw_networkx_nodes(graph, self._pos, nodelist=communities[i], node_color=[[c for c in colors[i]]],
+                                       label=i,
+                                       node_size=[node_min_size + d[k] * multiplier for k in d if k in communities[i]])
+                plt.legend()
+
+        nx.draw_networkx_labels(graph, self._pos, font_size=7)
+
+        straight_edges = []
+        curved_edges = []
+        edges = graph.edges()
+        edge_labels = list(nx.get_edge_attributes(graph, 'label').items())
+        curved_edge_labels = dict()
+        straight_edge_labels = dict()
+        i = 0
+        for edge in edges:
+            _, label = edge_labels[i]
+            if graph.has_edge(edge[1], edge[0]):
+                curved_edges.append(edge)
+                curved_edge_labels[edge] = label
+            else:
+                straight_edges.append(edge)
+                straight_edge_labels[edge] = label
+            i += 1
+        nx.draw_networkx_edges(graph, self._pos, edgelist=straight_edges, edge_color='grey', width=0.5)
+        arc_rad = 0.25
+        nx.draw_networkx_edges(graph, self._pos, edgelist=curved_edges,
+                               connectionstyle=f'arc3, rad={arc_rad}', edge_color='grey', width=0.5)
+
+        nx.draw_networkx_edge_labels(graph, self._pos, edge_labels=straight_edge_labels, rotate=False, font_size=6,
+                                     font_color='grey')
+        nx.draw_networkx_edge_labels(graph, self._pos, edge_labels=curved_edge_labels, rotate=False, font_size=6,
+                                     font_color='grey')
+
         toolbar = NavigationToolbar2Tk(canvas, root)
         toolbar.update()
+
+        canvas.get_tk_widget().pack(fill='both', expand=True)
         canvas.draw()
-        # edge_labels = nx.get_edge_attributes(self.di_graph, 'label')
-        # nx.draw_networkx_edge_labels(self.graph, edge_labels=edge_labels, pos=pos)
-
-        # plt.show()
-
-    def display_all_modules(self, multi_di_graph: nx.MultiDiGraph, communities: list) -> None:
-        graph = nx.Graph(multi_di_graph)
-        self._set_pos(graph)
-        nx.draw(multi_di_graph, with_labels=True, pos=self._pos, font_size=8)
-        colors = distinctipy.get_colors(len(communities))
-        for i in range(len(communities)):
-            nx.draw_networkx_nodes(graph, self._pos, nodelist=communities[i], node_color=[[c for c in colors[i]]],
-                                   label=i)
-        plt.legend()
-        plt.show()
-
-    def display_module(self, graph: nx.Graph) -> None:
-        pos = nx.spring_layout(nx.Graph(graph), seed=1)
-        nx.draw(graph, with_labels=True, pos=pos, font_size=8)
-        plt.show()
 
     def _set_pos(self, graph: nx.Graph) -> None:
         if self._pos is None:

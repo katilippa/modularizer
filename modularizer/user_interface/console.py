@@ -1,5 +1,6 @@
 from distinctipy import distinctipy
 from getpass import getpass
+import json
 from matplotlib import pyplot as plt
 import networkx as nx
 import pathlib
@@ -63,7 +64,7 @@ class Console(UserInterface):
             raise Exception('Invalid module id')
 
     def get_module_name(self, module) -> str:
-        self.info_msg(f'Please name the following module: \n{module}\n')
+        self.info_msg(f'Please name the following module: \n{json.dumps(module, indent=4)}\n')
         while True:
             module_name = self.get_user_input('module name')
             if module_name.replace('.', '').replace(':', '').isidentifier():

@@ -72,7 +72,7 @@ class AppTest(unittest.TestCase):
 
     def test_generate_module_file(self):
         module_id = self.app._find_module_id_by_file_path("webserver/requesthandler.h")
-        self.app._generate_module_file(module_id, "webserver")
+        self.app._generate_module(module_id, "webserver")
 
     def test_load_modules_from_file(self):
         self.app.load_modules_from_file(r'results\CodeCompass_20220509_005153.json')

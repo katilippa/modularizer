@@ -4,8 +4,8 @@ from typing import List, Tuple
 import unittest
 
 from modularizer.app import RegexPatterns
-from modularizer.user_interface import Console
-from modularizer.user_interface import UserInterface
+from modularizer.user_interface.console import Console
+from modularizer.user_interface.user_interface import UserInterface
 
 
 # TODO: make tests independent from parsed projects
@@ -22,14 +22,14 @@ class MockUserInterface(Console):
             return False
 
 
-class MyTestCase(unittest.TestCase):
+class AppTest(unittest.TestCase):
     # app = App(MockUserInterface(), DatabaseConnection({
     #                                                     "database": "CodeCompass",
     #                                                     "user": "compass",
     #                                                     "host": "localhost",
     #                                                     "port": "5432"
     #                                                    }))
-
+    @unittest.skip
     def test_find_module_id_by_file_path(self):
         module_id = self.app._find_module_id_by_file_path("webserver/requesthandler.h")
         self.assertIsNotNone(module_id)
@@ -77,13 +77,6 @@ class MyTestCase(unittest.TestCase):
     def test_load_modules_from_file(self):
         self.app.load_modules_from_file(r'results\CodeCompass_20220509_005153.json')
         self.assertGreater(len(self.app.communities), 0)
-
-    def test_user_interface(self):
-        try:
-            ui = UserInterface()
-            self.fail("'UserInterface' should not be instantiatable, only its children")
-        except Exception as ex:
-            self.assertEqual(str(ex), "only children of 'UserInterface' may be instantiated")
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,8 +3,6 @@ from getpass import getpass
 from matplotlib import pyplot as plt
 import networkx as nx
 import pathlib
-import sys
-import time
 from tkinter import Tk
 from typing import List, Tuple
 
@@ -18,13 +16,6 @@ from modularizer.user_interface.user_interface import UserInterface
 
 class Console(UserInterface):
     _menu = None
-    _pos = None
-
-    def get_if_get_database_connection_ok(self):
-        pass
-
-    def select_database_connection(self):
-        pass
 
     def get_password(self) -> str:
         return getpass('password: ')
@@ -93,7 +84,7 @@ class Console(UserInterface):
 
     def _display_graph(self, graph: nx.Graph, communities: list = None,
                        colors: List[Tuple[float, float, float]] = None) -> None:
-        self._pos = nx.spring_layout(graph, seed=3)
+        pos = nx.spring_layout(graph, seed=3)
         root = Tk()
         root.title('Modularizer')
         # root.iconphoto(False, 'info.png')
@@ -111,17 +102,17 @@ class Console(UserInterface):
         d = dict(graph.degree())
         if communities is None or colors is None:
             d = dict(graph.degree())
-            nx.draw_networkx_nodes(graph, self._pos, node_size=[node_min_size+d[k]*multiplier for k in d])
+            nx.draw_networkx_nodes(graph, pos, node_size=[node_min_size+d[k]*multiplier for k in d])
         else:
             for i in range(len(communities)):
-                nx.draw_networkx_nodes(graph, self._pos, nodelist=communities[i], node_color=[[c for c in colors[i]]],
+                nx.draw_networkx_nodes(graph, pos, nodelist=communities[i], node_color=[[c for c in colors[i]]],
                                        label=i,
                                        node_size=[node_min_size + d[k] * multiplier for k in d if k in communities[i]])
                 lgnd = plt.legend()
                 for handle in lgnd.legendHandles:
                     handle._sizes = [200]
 
-        nx.draw_networkx_labels(graph, self._pos, font_size=7)
+        nx.draw_networkx_labels(graph, pos, font_size=7)
 
         straight_edges = []
         curved_edges = []
@@ -139,14 +130,14 @@ class Console(UserInterface):
                 straight_edges.append(edge)
                 straight_edge_labels[edge] = label
             i += 1
-        nx.draw_networkx_edges(graph, self._pos, edgelist=straight_edges, edge_color='grey', width=0.5)
+        nx.draw_networkx_edges(graph, pos, edgelist=straight_edges, edge_color='grey', width=0.5)
         arc_rad = 0.25
-        nx.draw_networkx_edges(graph, self._pos, edgelist=curved_edges,
+        nx.draw_networkx_edges(graph, pos, edgelist=curved_edges,
                                connectionstyle=f'arc3, rad={arc_rad}', edge_color='grey', width=0.5)
 
-        nx.draw_networkx_edge_labels(graph, self._pos, edge_labels=straight_edge_labels, rotate=False, font_size=6,
+        nx.draw_networkx_edge_labels(graph, pos, edge_labels=straight_edge_labels, rotate=False, font_size=6,
                                      font_color='grey')
-        nx.draw_networkx_edge_labels(graph, self._pos, edge_labels=curved_edge_labels, rotate=False, font_size=6,
+        nx.draw_networkx_edge_labels(graph, pos, edge_labels=curved_edge_labels, rotate=False, font_size=6,
                                      font_color='grey')
 
         toolbar = NavigationToolbar2Tk(canvas, root)
@@ -154,7 +145,3 @@ class Console(UserInterface):
 
         canvas.get_tk_widget().pack(fill='both', expand=True)
         canvas.draw()
-
-    def _set_pos(self, graph: nx.Graph) -> None:
-        if self._pos is None:
-            self._pos = nx.spring_layout(graph, seed=3)

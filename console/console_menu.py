@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 import console.console_util
 
+
 class ConsoleMenu:
     def __init__(self, options: List[Tuple[str, callable]], title: str = "Options"):
         self.title = title
@@ -13,7 +14,7 @@ class ConsoleMenu:
         print(f"------------------ {self.title} ------------------")
         i = 0
         for i in range(0, len(self.options)):
-            print("\t" + str(i+1) + ". " + self.options[i][0])
+            print("\t" + str(i + 1) + ". " + self.options[i][0])
         i += 1
         print("\t" + str(i + 1) + ". " + "Exit")
 
@@ -35,7 +36,7 @@ class ConsoleMenu:
         if item <= len(self.options):
             while True:
                 try:
-                    self.options[item-1][1]()
+                    self.options[item - 1][1]()
                     break
                 except Exception as err:
                     print(err)

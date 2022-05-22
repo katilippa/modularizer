@@ -1,63 +1,67 @@
-from abc import ABCMeta, abstractmethod
-import networkx as nx
+import unittest
+from abc import ABC
 from typing import List, Tuple
 
+import networkx as nx
 
-class UserInterface(metaclass=ABCMeta):
+from modularizer.user_interface.user_interface import UserInterface
 
-    def __new__(cls):
-        if cls is UserInterface:
-            raise TypeError(f"only children of '{cls.__name__}' may be instantiated")
-        return object.__new__(cls)
 
-    @abstractmethod
+class UIChildWithoutImplementations(UserInterface):
+    pass
+
+
+class UIChildWithImplementations(UserInterface):
     def get_password(self) -> str:
         pass
 
-    @abstractmethod
     def get_database_connection(self) -> dict:
         pass
 
-    @abstractmethod
     def info_msg(self, msg: str) -> None:
         pass
 
-    @abstractmethod
     def get_user_input(self, msg: str) -> str:
         pass
 
-    @abstractmethod
     def load_menu_options(self, menu_options: List[Tuple[str, callable]]) -> None:
         pass
 
-    @abstractmethod
     def closed_question(self, question: str) -> bool:
         pass
 
-    @abstractmethod
     def get_existing_directory_path(self, msg: str) -> str:
         pass
 
-    @abstractmethod
     def get_existing_file_path(self) -> str:
         pass
 
-    @abstractmethod
     def get_module_id(self, max_id: int) -> int:
         pass
 
-    @abstractmethod
     def get_module_name(self, module) -> str:
         pass
 
-    @abstractmethod
     def display_dependency_graph(self, graph: nx.Graph) -> None:
         pass
 
-    @abstractmethod
     def display_all_modules(self, graph: nx.Graph, communities: list) -> None:
         pass
 
-    @abstractmethod
     def display_module(self, graph: nx.Graph) -> None:
         pass
+
+
+class UserInterfaceTest(unittest.TestCase):
+    def test_instantiation(self):
+        self.assertRaises(TypeError, UserInterface)
+
+    def test_child_without_methods(self):
+        self.assertRaises(TypeError, UIChildWithoutImplementations)
+
+    def test_child_with_methods(self):
+        self.assertIsInstance(UIChildWithImplementations(), UserInterface)
+
+
+if __name__ == '__main__':
+    unittest.main()

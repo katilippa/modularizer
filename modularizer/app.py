@@ -49,14 +49,14 @@ class Modularizer:
                 with open(file_path, "r") as f:
                     connection = json.load(f)
             except Exception as ex:
-                self.ui.info_msg(f'Could not load database connections: {str(ex)}')
-            if connection is None:
+                self.ui.info_msg(f'Could not load default database connection: {str(ex)}')
+            if connection is None or len(connection.keys()) == 0:
                 connection = self.ui.get_database_connection()
             else:
                 c = connection.copy()
                 if 'password' in connection.keys():
                     del c['password']
-                if not ui.closed_question(f'default database connection:\n{c}\nConnect to database?'):
+                if not ui.closed_question(f'Default database connection:\n{c}\nConnect to database?'):
                     connection = self.ui.get_database_connection()
             while True:
                 try:

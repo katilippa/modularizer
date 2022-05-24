@@ -78,7 +78,7 @@ class Modularizer:
         self.menu_options = [('Display dependency graph', self.display_dependency_graph),
                              ('Display modularization', self.display_modularization),
                              ('Display module', self.display_module),
-                             ('Find module by file', self.find_module_by_file_path),
+                             ('Find module by file', self.find_module_by_file),
                              ('Print modularization', self.print_modularization),
                              ('Save modularization to file', self.save_modularization_to_file),
                              ('Load modularization from file', self.load_modularization_from_file),
@@ -448,8 +448,8 @@ class Modularizer:
         module_id = self.ui.get_module_id(len(self.communities))
         self._get_name_and_generate_module_file(module_id)
 
-    def find_module_by_file_path(self):
-        file_path = self.ui.get_user_input('file path')
+    def find_module_by_file(self):
+        file_path = self.ui.get_user_input('file')
         module_id = self._find_module_id_by_file_path(file_path)
         if module_id is not None:
             self.ui.info_msg(json.dumps(self.modules[module_id], indent=4))

@@ -75,7 +75,7 @@ class AppTest(unittest.TestCase):
         self.app._generate_module(module_id, "webserver")
 
     def test_load_modules_from_file(self):
-        self.app.load_modules_from_file(r'results\CodeCompass_20220509_005153.json')
+        self.app.load_modularization_from_file(r'results\CodeCompass_20220509_005153.json')
         self.assertGreater(len(self.app.communities), 0)
 
 if __name__ == '__main__':

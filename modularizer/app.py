@@ -76,13 +76,13 @@ class Modularizer:
         self.modules = dict()
         self._set_default_values()
         self.menu_options = [('Display dependency graph', self.display_dependency_graph),
-                             ('Display all modules', self.display_all_modules),
+                             ('Display modularization', self.display_modularization),
                              ('Display module', self.display_module),
                              ('Find module id by file', self.find_module_id_by_file_path),
-                             ('Print modules', self.print_modules),
-                             ('Save modules to file', self.save_modules_to_file),
-                             ('Load modules from file', self.load_modules_from_file),
-                             ('Reset default modules', self.reset_default_modules),
+                             ('Print modularization', self.print_modularization),
+                             ('Save modularization to file', self.save_modularization_to_file),
+                             ('Load modularization from file', self.load_modularization_from_file),
+                             ('Reset default modularization', self.reset_default_modularization),
                              # ("Generate all module files", self.generate_module_files),
                              ('Generate module file', self.generate_module_file),
                              ('Switch database connection', self.switch_database_connection)]
@@ -207,7 +207,7 @@ class Modularizer:
     def display_dependency_graph(self) -> None:
         self.ui.display_dependency_graph(self.multi_di_graph)
 
-    def display_all_modules(self) -> None:
+    def display_modularization(self) -> None:
         self.ui.display_all_modules(self.multi_di_graph, self.communities)
 
     def display_module(self) -> None:
@@ -226,10 +226,10 @@ class Modularizer:
     def _modules_to_json(modules) -> str:
         return json.dumps(modules, indent=4)
 
-    def print_modules(self) -> None:
+    def print_modularization(self) -> None:
         self.ui.info_msg(self._modules_to_json(self.modules))
 
-    def save_modules_to_file(self):
+    def save_modularization_to_file(self):
         os.makedirs(self.results_dir, exist_ok=True)
         file_path = os.path.join(self.results_dir,
                                  f'{self.database_connection.database}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json')
@@ -256,12 +256,12 @@ class Modularizer:
             self.communities.append(self.multi_di_graph.subgraph(nodes))
         self.modules = self._modules_to_dict()
 
-    def load_modules_from_file(self):
+    def load_modularization_from_file(self):
         file_path = self.ui.get_existing_file_path()
         self._load_modules_from_file(file_path)
         self.ui.info_msg('Modules loaded')
 
-    def reset_default_modules(self):
+    def reset_default_modularization(self):
         self._set_default_values()
 
     def _query_file_contents(self, paths):

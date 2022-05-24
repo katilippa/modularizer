@@ -113,8 +113,8 @@ class Modularizer:
             dirs_to_exclude.append(build_dir)
         else:
             self.ui.info_msg(f'Build directory not found under project root.')
-        while self.ui.closed_question('Do you want to exclude another directory?'):
-            dir_to_exclude = self.ui.get_user_input("directory (relative to project root)")
+        while self.ui.closed_question('Do you want to exclude another directory or file?'):
+            dir_to_exclude = self.ui.get_user_input("directory or file (relative to project root)")
             dirs_to_exclude.append(pathlib.PurePosixPath(project_root).joinpath(dir_to_exclude))
         return dirs_to_exclude
 
@@ -199,7 +199,7 @@ class Modularizer:
                 self._connect_to_database(connection)
                 break
             except Exception:
-                if not self.ui.closed_question('Connect to other database?'):
+                if not self.ui.closed_question('Connect to an other database?'):
                     self.ui.info_msg('Closing the application...')
                     raise SystemExit()
         self._set_default_values()

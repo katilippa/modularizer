@@ -1,6 +1,7 @@
 from distinctipy import distinctipy
 from getpass import getpass
 import json
+from math import sqrt
 from matplotlib import pyplot as plt
 import networkx as nx
 import pathlib
@@ -85,7 +86,7 @@ class Console(UserInterface):
 
     def _display_graph(self, graph: nx.Graph, communities: list = None,
                        colors: List[Tuple[float, float, float]] = None) -> None:
-        pos = nx.spring_layout(graph, seed=3)
+        pos = nx.spring_layout(graph, seed=2, k=2/sqrt(len(graph.nodes)))
         root = Tk()
         root.title('Modularizer')
         # root.iconphoto(False, 'info.png')
@@ -99,7 +100,7 @@ class Console(UserInterface):
         fig.set_tight_layout(True)
 
         node_min_size = 450
-        multiplier = 50
+        multiplier = 25
         d = dict(graph.degree())
         if communities is None or colors is None:
             d = dict(graph.degree())
@@ -131,10 +132,10 @@ class Console(UserInterface):
                 straight_edges.append(edge)
                 straight_edge_labels[edge] = label
             i += 1
-        nx.draw_networkx_edges(graph, pos, edgelist=straight_edges, edge_color='grey', width=0.5)
+        nx.draw_networkx_edges(graph, pos, edgelist=straight_edges, edge_color='grey', width=0.5, arrowsize=20)
         arc_rad = 0.25
         nx.draw_networkx_edges(graph, pos, edgelist=curved_edges,
-                               connectionstyle=f'arc3, rad={arc_rad}', edge_color='grey', width=0.5)
+                               connectionstyle=f'arc3, rad={arc_rad}', edge_color='grey', width=0.5, arrowsize=20)
 
         nx.draw_networkx_edge_labels(graph, pos, edge_labels=straight_edge_labels, rotate=False, font_size=6,
                                      font_color='grey')

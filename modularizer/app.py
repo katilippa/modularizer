@@ -32,10 +32,10 @@ class RegexPatterns(Enum):
 
 
 class Modularizer:
-    _edge_type = {0: "Provides",
-                  1: "Implements",
-                  2: "Uses",
-                  3: "Depends on"}
+    _edge_type = {0: "provides",
+                  1: "implements",
+                  2: "uses",
+                  3: "depends on"}
 
     results_dir = pathlib.Path(__file__).resolve().parent.joinpath('results')
 

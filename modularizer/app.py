@@ -47,13 +47,12 @@ class Modularizer:
                 file_path = pathlib.Path(__file__).resolve().parent.joinpath('data').joinpath(
                     'default_database_connection.json')
                 with open(file_path, "r") as f:
-                    database_connections = json.load(f)
+                    connection = json.load(f)
             except Exception as ex:
                 self.ui.info_msg(f'Could not load database connections: {str(ex)}')
-            if database_connections is None:
+            if connection is None:
                 connection = self.ui.get_database_connection()
             else:
-                connection = database_connections[0]
                 c = connection.copy()
                 if 'password' in connection.keys():
                     del c['password']
@@ -76,16 +75,17 @@ class Modularizer:
         self.communities = None
         self.modules = dict()
         self._set_default_values()
-        self.menu_options = [("Display dependency graph", self.display_dependency_graph),
-                             ("Display all modules", self.display_all_modules),
-                             ("Display module", self.display_module),
-                             ("Print modules", self.print_modules),
-                             ("Save modules to file", self.save_modules_to_file),
-                             ("Load modules from file", self.load_modules_from_file),
-                             ("Reset default modules", self.reset_default_modules),
+        self.menu_options = [('Display dependency graph', self.display_dependency_graph),
+                             ('Display all modules', self.display_all_modules),
+                             ('Display module', self.display_module),
+                             ('Find module id by file', self.find_module_id_by_file_path),
+                             ('Print modules', self.print_modules),
+                             ('Save modules to file', self.save_modules_to_file),
+                             ('Load modules from file', self.load_modules_from_file),
+                             ('Reset default modules', self.reset_default_modules),
                              # ("Generate all module files", self.generate_module_files),
-                             ("Generate module file", self.generate_module_file),
-                             ("Switch database connection", self.switch_database_connection)]
+                             ('Generate module file', self.generate_module_file),
+                             ('Switch database connection', self.switch_database_connection)]
         self.ui.load_menu_options(self.menu_options)
 
     def _connect_to_database(self, connection: dict):
@@ -272,7 +272,7 @@ class Modularizer:
         results = self.database_connection.cursor.fetchall()
         return self.database_connection.cursor.description, results
 
-    def _find_module_id_by_file_path(self, file_path: str):
+    def _find_module_id_by_file_path(self, file_path: str) -> int:
         for i in range(len(self.communities)):
             for node in self.communities[i]:
                 full_path = self.multi_di_graph.nodes[node]['path']
@@ -447,3 +447,12 @@ class Modularizer:
     def generate_module_file(self):
         module_id = self.ui.get_module_id(len(self.communities))
         self._get_name_and_generate_module_file(module_id)
+
+    def find_module_id_by_file_path(self):
+        file_path = self.ui.get_user_input('file path')
+        module_id = self._find_module_id_by_file_path(file_path)
+        if module_id is not None:
+            self.ui.info_msg(f'module id: {module_id}')
+        else:
+            raise Exception('File not found')
+

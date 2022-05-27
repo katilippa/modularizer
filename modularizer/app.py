@@ -359,13 +359,13 @@ class Modularizer:
         return lines
 
     @staticmethod
-    def _comment_out_include_guards(filename, global_module_fragment, preprocessing_directives) -> List[str]:
+    def _comment_out_include_guards_and_duplicates(filename, global_module_fragment, preprocessing_directives) -> List[str]:
         pds = []
         for pd in preprocessing_directives:
             filename_without_extension = pathlib.Path(filename).stem
             include_guard_snippet = filename_without_extension.replace('.', '_').replace('-', '_').upper()
             stripped_pd = pd.replace('\n', '').strip()
-            if include_guard_snippet in pd.upper() or (
+            if (include_guard_snippet in pd.upper() and '#include' not in pd) or (
                     stripped_pd != '#endif' and stripped_pd != '#else' and (stripped_pd in global_module_fragment)):
                 pds.append(f'// {stripped_pd}')
             elif '#endif' in pd or '#endif' == pd:
@@ -404,7 +404,7 @@ class Modularizer:
             preprocessing_directives = re.findall(RegexPattern.PREPROCESSING_DIRECTIVE.value, file_content, re.RegexFlag.MULTILINE)
             for pd in preprocessing_directives:
                 file_content = file_content.replace(pd, '')
-            pds = self._comment_out_include_guards(file.filename, global_module_fragment, preprocessing_directives)
+            pds = self._comment_out_include_guards_and_duplicates(file.filename, global_module_fragment, preprocessing_directives)
             global_module_fragment = global_module_fragment + pds
 
             global_module_fragment.append('\n')

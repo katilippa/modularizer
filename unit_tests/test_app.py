@@ -3,7 +3,7 @@ import re
 from typing import List, Tuple
 import unittest
 
-from modularizer.app import RegexPatterns
+from modularizer.app import RegexPattern
 from modularizer.user_interface.console import Console
 from modularizer.user_interface.user_interface import UserInterface
 
@@ -61,11 +61,11 @@ class AppTest(unittest.TestCase):
         file_path = (pathlib.PurePosixPath(__file__).parent).joinpath('data').joinpath("regex_test.txt")
         with open(file_path, 'r', encoding='utf-8') as f:
             file_content = f.read()
-        comments = re.findall(RegexPatterns.COMMENT.value, file_content, re.MULTILINE)
+        comments = re.findall(RegexPattern.COMMENT.value, file_content, re.MULTILINE)
         for comment in comments:
             file_content = file_content.replace(comment, '')
-        includes = re.findall(RegexPatterns.INCLUDE.value, file_content, re.MULTILINE)
-        included_files = re.findall(RegexPatterns.INCLUDED_FILES.value, file_content, re.MULTILINE)
+        includes = re.findall(RegexPattern.INCLUDE.value, file_content, re.MULTILINE)
+        included_files = re.findall(RegexPattern.INCLUDED_FILES.value, file_content, re.MULTILINE)
         self.assertEqual(len(includes), 4)
         self.assertEqual(len(comments), 5)
         self.assertEqual(len(included_files), 4)

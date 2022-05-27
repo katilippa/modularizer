@@ -24,10 +24,10 @@ class File:
         return self.path
 
 
-class RegexPatterns(Enum):
+class RegexPattern(Enum):
     COMMENT = r'^[^\S\n\r]*(?:\/\*(?:[^\*\/]*|(?:\/*|(?:\*[^\/])*))*(?:\*\/){1}|(?:(?:\/{2}.*)(?:\n|$)))'
     INCLUDE = r'((?:\n|\\n)*\s*#[^\S\n\r]*include[^\S\n\r]*(?:<[^>]+>|"[^"]+")(?:\n|\\n|$))'
-    PREPROCESSING_DIRECTIVE = r'((?:\n|\\n)*\s*#[^\S\n\r]*(?:include|if|ifdef|ifndef|else|elif|elifdef|elifndef|endif|define|undef|error|pragma|line)[^\S\n\r]*[^\n\r]*(?:\n|\\n|$))'
+    PREPROCESSING_DIRECTIVE = r'(^(?:\n|\\n)*\s*#[^\S\n\r]*(?:include|if|ifdef|ifndef|else|elif|elifdef|elifndef|endif|define|undef|error|pragma|line)[^\S\n\r]*[^\n\r]*(?:\n|\\n|$))'
     INCLUDED_FILES = r'(?:^#[^\S\n\r]*include[^\S\n\r]*)(<[^>]+>|"[^"]+")(?:\n|\\n|$)'
 
 
@@ -189,7 +189,7 @@ class Modularizer:
 
     def _set_default_values(self) -> None:
         self._build_graph()
-        self.communities = nx.community.louvain_communities(nx.Graph(self.multi_di_graph), seed=3, resolution=1.1)
+        self.communities = nx.community.louvain_communities(nx.MultiGraph(self.multi_di_graph), seed=3, resolution=1.1)
         self.modules = self._modules_to_dict()
 
     def switch_database_connection(self) -> None:
@@ -362,7 +362,8 @@ class Modularizer:
     def _comment_out_include_guards(filename, global_module_fragment, preprocessing_directives) -> List[str]:
         pds = []
         for pd in preprocessing_directives:
-            include_guard_snippet = filename.replace('.', '_').replace('-', '_').upper()
+            filename_without_extension = pathlib.Path(filename).stem
+            include_guard_snippet = filename_without_extension.replace('.', '_').replace('-', '_').upper()
             stripped_pd = pd.replace('\n', '').strip()
             if include_guard_snippet in pd.upper() or (
                     stripped_pd != '#endif' and stripped_pd != '#else' and (stripped_pd in global_module_fragment)):
@@ -395,12 +396,12 @@ class Modularizer:
         module_content = [f'export module {module_name};', '\n']
         for file in files:
             file_content = file.content
-            comments = re.findall(RegexPatterns.COMMENT.value, file_content, re.RegexFlag.MULTILINE)
+            comments = re.findall(RegexPattern.COMMENT.value, file_content, re.RegexFlag.MULTILINE)
             for comment in comments:
                 file_content = file_content.replace(comment, '')
             global_module_fragment.append(f'// {file.filename}')
 
-            preprocessing_directives = re.findall(RegexPatterns.PREPROCESSING_DIRECTIVE.value, file_content)
+            preprocessing_directives = re.findall(RegexPattern.PREPROCESSING_DIRECTIVE.value, file_content, re.RegexFlag.MULTILINE)
             for pd in preprocessing_directives:
                 file_content = file_content.replace(pd, '')
             pds = self._comment_out_include_guards(file.filename, global_module_fragment, preprocessing_directives)

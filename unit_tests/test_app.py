@@ -159,7 +159,7 @@ class ModularizerTest(unittest.TestCase):
         sorted_nodes = Modularizer.get_topologically_sorted_nodes(graph)
         self.assertSequenceEqual(expected_sorted_nodes, sorted_nodes)
 
-    def test_regex_comments(self):
+    def test_comments_regex(self):
         file_path = pathlib.Path(__file__).resolve().parent.joinpath('data').joinpath("regex_test.txt")
         with open(file_path, 'r', encoding='utf-8') as f:
             file_content = f.read()
@@ -169,7 +169,7 @@ class ModularizerTest(unittest.TestCase):
                              '/********\n block comment\n*********/', '// eof']
         self.assertSequenceEqual(expected_comments, comments)
 
-    def test_regex_preprocessing_directives(self):
+    def test_preprocessing_directives_regex(self):
         file_path = pathlib.Path(__file__).resolve().parent.joinpath('data').joinpath("regex_test.txt")
         with open(file_path, 'r', encoding='utf-8') as f:
             file_content = f.read()

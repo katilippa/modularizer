@@ -1,5 +1,4 @@
 import unittest
-from abc import ABC
 from typing import List, Tuple
 
 import networkx as nx

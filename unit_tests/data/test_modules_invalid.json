@@ -4,7 +4,7 @@
         "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool-javac.c",
         "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool.h",
         "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-hooks.h",
-        "ldlogger-tool.c",
+        "non_existent_file.h",
         "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-hooks.c",
         "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-util.c",
         "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-logger.c",

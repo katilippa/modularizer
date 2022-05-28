@@ -4,3 +4,4 @@ distinctipy>=1.2.1
 psycopg2>=2.9.3
 numpy>=1.22.3
 setuptools>=62.1.0
+pandas>=1.4.2

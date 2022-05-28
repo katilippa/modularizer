@@ -93,10 +93,19 @@ class Modularizer:
             try:
                 self.database_connection = DatabaseConnection(connection)
                 self.ui.info_msg("Successful database connection: " + str(self.database_connection))
+                self.database_connection.cursor.execute(
+                    "select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
+                tables = self.database_connection.cursor.fetchall()
+                for table in ['CppEdge', 'File', 'FileContent']:
+                    if (table,) not in tables:
+                        raise Exception(f"Table '{table}' not found in database")
                 break
             except Exception as ex:
                 if 'no password supplied' in str(ex):
                     connection['password'] = self.ui.get_password()
+                elif 'not found in database' in str(ex):
+                    self.ui.info_msg(str(ex))
+                    raise ex
                 else:
                     self.ui.info_msg(str(ex))
                     if not self.ui.closed_question('Retry?'):
@@ -159,7 +168,7 @@ class Modularizer:
             if project_root in record[from_path_index] and all(
                     str(path) not in record[to_path_index] for path in dirs_to_exclude) and \
                     project_root in record[to_path_index] and all(
-                    str(path) not in record[from_path_index] for path in dirs_to_exclude):
+                str(path) not in record[from_path_index] for path in dirs_to_exclude):
                 from_node = record[from_path_index].replace(project_root, "").strip("/")
                 to_node = record[to_path_index].replace(project_root, "").strip("/")
                 if not graph.has_node(from_node):
@@ -373,7 +382,7 @@ class Modularizer:
         return lines
 
     @staticmethod
-    def comment_out_duplicate_includes(global_module_fragment: List[str], preprocessing_directives: List[str])\
+    def comment_out_duplicate_includes(global_module_fragment: List[str], preprocessing_directives: List[str]) \
             -> List[str]:
         pds = []
         for pd in preprocessing_directives:
@@ -385,7 +394,7 @@ class Modularizer:
         return pds
 
     @staticmethod
-    def comment_out_include_guards(filename: str, preprocessing_directives: List[str])\
+    def comment_out_include_guards(filename: str, preprocessing_directives: List[str]) \
             -> List[str]:
         pds = []
         for pd in preprocessing_directives:

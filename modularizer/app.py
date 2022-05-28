@@ -106,7 +106,7 @@ class Modularizer:
                             connection['password'] = self.ui.get_password()
 
     def _get_dirs_to_exclude(self, query_results, project_root, from_path_index, to_path_index):
-        build_dir = self._find_build_dir(query_results, project_root, from_path_index, to_path_index)
+        build_dir = self.find_build_dir(query_results, project_root, from_path_index, to_path_index)
         dirs_to_exclude = []
         if build_dir != '':
             self.ui.info_msg(f'Build directory found: {build_dir}\n It will be excluded from analysis.')
@@ -125,7 +125,7 @@ class Modularizer:
         return self.database_connection.cursor.fetchall(), self.database_connection.cursor.description
 
     @staticmethod
-    def _find_project_root(project_name, query_results, from_path_index, to_path_index):
+    def find_project_root(project_name, query_results, from_path_index, to_path_index):
         project_root = ''
         for record in query_results:
             if project_name in record[from_path_index]:
@@ -139,7 +139,7 @@ class Modularizer:
         return project_root
 
     @staticmethod
-    def _find_build_dir(query_results, project_root, from_path_index, to_path_index):
+    def find_build_dir(query_results, project_root, from_path_index, to_path_index) -> str:
         for folder in ['build', 'Build']:
             build_dir = pathlib.PurePosixPath(project_root).joinpath(folder)
             i = 0
@@ -148,12 +148,12 @@ class Modularizer:
                     and not (str(build_dir) in str(pathlib.PurePosixPath(query_results[i][to_path_index]))):
                 i += 1
             if i < len(query_results):
-                return build_dir
+                return str(build_dir)
         return ''
 
     @staticmethod
-    def _graph_from_query_results(query_results, project_root, dirs_to_exclude, from_path_index,
-                                  to_path_index) -> nx.MultiDiGraph:
+    def graph_from_query_results(query_results, project_root, dirs_to_exclude, from_path_index,
+                                 to_path_index) -> nx.MultiDiGraph:
         graph = nx.MultiDiGraph()
         for record in query_results:
             if project_root in record[from_path_index] and all(
@@ -172,10 +172,10 @@ class Modularizer:
     def _build_graph(self) -> None:
         query_file_path = pathlib.Path(__file__).resolve().parent.joinpath('data', 'cpp_edge_query.txt')
         query_results, description = self._execute_query(query_file_path)
-        from_path_index = self._find_column_index(description, 'frompath')
-        to_path_index = self._find_column_index(description, 'topath')
+        from_path_index = self.find_column_index(description, 'frompath')
+        to_path_index = self.find_column_index(description, 'topath')
         project_name = self.database_connection.database
-        project_root = self._find_project_root(project_name, query_results, from_path_index, to_path_index)
+        project_root = self.find_project_root(project_name, query_results, from_path_index, to_path_index)
         if project_root == '':
             project_root = self.ui.get_user_input(
                 f"Could not identify project root.\nEnter the parsed project's root directory")
@@ -185,11 +185,16 @@ class Modularizer:
         dirs_to_exclude = self._get_dirs_to_exclude(query_results, project_root, from_path_index, to_path_index)
 
         self.multi_di_graph = \
-            self._graph_from_query_results(query_results, project_root, dirs_to_exclude, from_path_index, to_path_index)
+            self.graph_from_query_results(query_results, project_root, dirs_to_exclude, from_path_index, to_path_index)
+
+    @staticmethod
+    def get_communities(multi_graph: nx.MultiGraph) -> list:
+        return nx.community.louvain_communities(nx.MultiGraph(multi_graph), seed=3, resolution=1.1)
 
     def _set_default_values(self) -> None:
         self._build_graph()
-        self.communities = nx.community.louvain_communities(nx.MultiGraph(self.multi_di_graph), seed=3, resolution=1.1)
+        # self.communities = nx.community.louvain_communities(nx.MultiGraph(self.multi_di_graph), seed=3, resolution=1.1)
+        self.communities = Modularizer.get_communities(self.multi_di_graph)
         self.modules = self._modules_to_dict()
 
     def switch_database_connection(self) -> None:
@@ -223,37 +228,42 @@ class Modularizer:
         return modules
 
     @staticmethod
-    def _modules_to_json(modules) -> str:
+    def modules_to_json(modules: dict) -> str:
         return json.dumps(modules, indent=4)
 
     def print_modularization(self) -> None:
-        self.ui.info_msg(self._modules_to_json(self.modules))
+        self.ui.info_msg(self.modules_to_json(self.modules))
 
     def save_modularization_to_file(self):
         os.makedirs(self.results_dir, exist_ok=True)
         file_path = os.path.join(self.results_dir,
                                  f'{self.database_connection.database}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json')
         with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(self._modules_to_json(self.modules))
+            f.write(self.modules_to_json(self.modules))
         self.ui.info_msg(f'file saved: {file_path}')
 
-    def _load_modules_from_file(self, file_path: str):
+    @staticmethod
+    def load_modules_from_file(file_path: str, dependency_graph: nx.MultiDiGraph) -> list:
         with open(file_path, 'r') as f:
             modules = json.load(f)
-        self.communities = []
+        communities = []
         for module_id, files in modules.items():
             nodes = []
             for file in files:
                 i = 0
-                for node, data in self.multi_di_graph.nodes(data=True):
+                for node, data in dependency_graph.nodes(data=True):
                     if data['path'] == file:
                         break
                     i += 1
-                if i < len(self.multi_di_graph.nodes):
+                if i < len(dependency_graph):
                     nodes.append(node)
                 else:
                     raise Exception(f'Node not found for file: {file}')
-            self.communities.append(self.multi_di_graph.subgraph(nodes))
+            communities.append(dependency_graph.subgraph(nodes))
+        return communities
+
+    def _load_modules_from_file(self, file_path: str):
+        self.communities = Modularizer.load_modules_from_file(file_path, self.multi_di_graph)
         self.modules = self._modules_to_dict()
 
     def load_modularization_from_file(self):
@@ -281,33 +291,36 @@ class Modularizer:
         return None
 
     @staticmethod
-    def _find_column_index(description, column_name: str):
-        i = 0
-        for column in description:
-            if column.name == column_name:
+    def find_column_index(description, column_name: str) -> int:
+        for i in range(len(description)):
+            if description[i].name == column_name:
                 return i
-            else:
-                i += 1
+        raise Exception(f'Column "{column_name}" not found')
 
     @staticmethod
-    def _get_topologically_sorted_nodes(graph):
+    def convert_graph_to_dag(graph: nx.Graph) -> nx.Graph:
         while not nx.is_directed_acyclic_graph(graph):
             cycle = nx.find_cycle(graph)
             new_graph = nx.MultiDiGraph(graph)
             new_graph.remove_edge(cycle[1][0], cycle[1][1])
             graph = new_graph
-        return list(nx.topological_sort(graph))
+        return graph
+
+    @staticmethod
+    def get_topologically_sorted_nodes(graph):
+        dag = Modularizer.convert_graph_to_dag(graph)
+        return list(nx.topological_sort(dag))
 
     def _collect_file_contents_for_module(self, module_id: int) -> List[File]:
         community = self.multi_di_graph.subgraph(self.communities[module_id])
-        sorted_nodes = self._get_topologically_sorted_nodes(community)
+        sorted_nodes = self.get_topologically_sorted_nodes(community)
         sorted_nodes.reverse()
         paths = [self.multi_di_graph.nodes[n]['path'] for n in sorted_nodes]
         descriptor, results = self._query_file_contents(paths)
-        path_index = self._find_column_index(descriptor, 'path')
-        filename_index = self._find_column_index(descriptor, 'filename')
-        content_index = self._find_column_index(descriptor, 'content')
-        id_index = self._find_column_index(descriptor, 'id')
+        path_index = self.find_column_index(descriptor, 'path')
+        filename_index = self.find_column_index(descriptor, 'filename')
+        content_index = self.find_column_index(descriptor, 'content')
+        id_index = self.find_column_index(descriptor, 'id')
         files = [File(id=result[id_index], path=result[path_index], filename=result[filename_index],
                       content=result[content_index]) for result in results]
         sorted_files = []
@@ -322,7 +335,7 @@ class Modularizer:
         return sorted_files
 
     @staticmethod
-    def _separate_headers_and_source_files(files) -> Tuple[List[File], List[File]]:
+    def separate_headers_and_source_files(files) -> Tuple[List[File], List[File]]:
         headers = []
         source_files = []
         for file in files:
@@ -334,12 +347,13 @@ class Modularizer:
         return headers, source_files
 
     @staticmethod
-    def _comment_out_unnecessary_includes(module_files: List[str], lines: List[str]) -> List[str]:
+    def comment_out_unnecessary_includes(module_files: List[str], lines: List[str]) -> List[str]:
         # included_files = re.findall(RegexPatterns.INCLUDED_FILES.value, file_content, re.MULTILINE)
         file_paths = []
         for path in module_files:
             file_paths.append(pathlib.PurePosixPath(path).parts)
         for line_index in range(len(lines)):
+            lines[line_index] = lines[line_index].replace('\n', '').strip()
             line_start = lines[line_index][:len('#include <')]
             included_file = lines[line_index][len(line_start):len(lines[line_index]) - 1]
             if line_start == '#include <':
@@ -359,21 +373,32 @@ class Modularizer:
         return lines
 
     @staticmethod
-    def _comment_out_include_guards_and_duplicates(filename, global_module_fragment, preprocessing_directives) -> List[str]:
+    def comment_out_duplicate_includes(global_module_fragment: List[str], preprocessing_directives: List[str])\
+            -> List[str]:
+        pds = []
+        for pd in preprocessing_directives:
+            stripped_pd = pd.replace('\n', '').strip()
+            if '#include' in stripped_pd and (stripped_pd in global_module_fragment) and pd[:2] != '//':
+                pds.append(f'// {stripped_pd}')
+            else:
+                pds.append(pd)
+        return pds
+
+    @staticmethod
+    def comment_out_include_guards(filename: str, preprocessing_directives: List[str])\
+            -> List[str]:
         pds = []
         for pd in preprocessing_directives:
             filename_without_extension = pathlib.Path(filename).stem
             include_guard_snippet = filename_without_extension.replace('.', '_').replace('-', '_').upper()
             stripped_pd = pd.replace('\n', '').strip()
-            if (include_guard_snippet in pd.upper() and '#include' not in pd) or (
-                    stripped_pd != '#endif' and stripped_pd != '#else' and (stripped_pd in global_module_fragment)):
+            if include_guard_snippet in pd.upper() and '#include' not in pd:
                 pds.append(f'// {stripped_pd}')
             elif '#endif' in pd or '#endif' == pd:
                 i = len(pds) - 1
                 closed = 0
                 opened = 0
                 while i >= 0:
-
                     if '#endif' in pds[i] or '#endif' == pds[i] and not (pds[i][:2] == '//'):
                         closed += 1
                     elif '#if' in pds[i] or '#ifdef' in pds[i] or '#ifndef' in pds[i]:
@@ -388,9 +413,9 @@ class Modularizer:
                 pds.append(stripped_pd)
         return pds
 
-    def _generate_module(self, module_id: int, module_name: str):
+    def _generate_module(self, module_id: int, module_name: str) -> List[str]:
         files = self._collect_file_contents_for_module(module_id)
-        headers, source_files = self._separate_headers_and_source_files(files)
+        headers, source_files = self.separate_headers_and_source_files(files)
         files = headers + source_files
         global_module_fragment = ['module;', '\n']
         module_content = [f'export module {module_name};', '\n']
@@ -401,22 +426,23 @@ class Modularizer:
                 file_content = file_content.replace(comment, '')
             global_module_fragment.append(f'// {file.filename}')
 
-            preprocessing_directives = re.findall(RegexPattern.PREPROCESSING_DIRECTIVE.value, file_content, re.RegexFlag.MULTILINE)
+            preprocessing_directives = re.findall(RegexPattern.PREPROCESSING_DIRECTIVE.value, file_content,
+                                                  re.RegexFlag.MULTILINE)
             for pd in preprocessing_directives:
                 file_content = file_content.replace(pd, '')
-            pds = self._comment_out_include_guards_and_duplicates(file.filename, global_module_fragment, preprocessing_directives)
+            pds = self.comment_out_include_guards(file.filename, preprocessing_directives)
+            pds = self.comment_out_duplicate_includes(global_module_fragment, pds)
             global_module_fragment = global_module_fragment + pds
 
             global_module_fragment.append('\n')
             module_content.append(f'// {file.filename}')
-            # TODO: decide if it is a header in a more sophisticated way
             if any(header.filename == file.filename for header in headers):
                 file_content = file_content.replace('namespace', 'export namespace', 1)
                 # TODO: export symbols based on CppEntity
             module_content = module_content + file_content.splitlines()
             module_content.append('\n')
-        global_module_fragment = self._comment_out_unnecessary_includes([file.path for file in files],
-                                                                        global_module_fragment)
+        global_module_fragment = self.comment_out_unnecessary_includes([file.path for file in files],
+                                                                       global_module_fragment)
         global_module_fragment.append('\n')
         module = global_module_fragment + module_content
         module = '\n'.join(module)
@@ -457,4 +483,3 @@ class Modularizer:
             self.ui.info_msg(f'module id: {module_id}')
         else:
             raise Exception('File not found')
-

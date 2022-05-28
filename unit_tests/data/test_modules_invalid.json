@@ -1,0 +1,17 @@
+{
+    "0": [
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool-gcc.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool-javac.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool.h",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-hooks.h",
+        "ldlogger-tool.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-hooks.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-util.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-logger.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-util.h"
+    ],
+    "1": [
+        "/home/katilippa/projects/test/CodeCompass/service/workspace/include/workspaceservice/workspaceservice.h",
+        "/home/katilippa/projects/test/CodeCompass/service/workspace/src/workspaceservice.cpp"
+    ]
+}

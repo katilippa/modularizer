@@ -94,7 +94,7 @@ class Console(UserInterface):
             root.state('zoomed')
         except Exception:
             root.attributes('-zoomed', True)
-        # plt.switch_backend('TkAgg')
+        plt.switch_backend('TkAgg')
         fig = plt.figure()
         canvas = FigureCanvasTkAgg(fig, master=root)
         fig.set_tight_layout(True)

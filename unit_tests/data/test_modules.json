@@ -1,0 +1,30 @@
+{
+    "0": [
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool-gcc.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool-javac.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool.h",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-hooks.h",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-tool.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-hooks.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-util.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-logger.c",
+        "/home/katilippa/projects/test/CodeCompass/logger/src/ldlogger-util.h"
+    ],
+    "1": [
+        "/home/katilippa/projects/test/CodeCompass/service/workspace/include/workspaceservice/workspaceservice.h",
+        "/home/katilippa/projects/test/CodeCompass/service/workspace/src/workspaceservice.cpp"
+    ],
+	"2": [
+        "/home/katilippa/projects/test/CodeCompass/webserver/src/session.cpp",
+        "/home/katilippa/projects/test/CodeCompass/webserver/include/webserver/requesthandler.h",
+        "/home/katilippa/projects/test/CodeCompass/util/include/util/util.h",
+        "/home/katilippa/projects/test/CodeCompass/service/authentication/src/authenticationservice.cpp",
+        "/home/katilippa/projects/test/CodeCompass/webserver/src/authentication.h",
+        "/home/katilippa/projects/test/CodeCompass/webserver/src/sessionmanager.h",
+        "/home/katilippa/projects/test/CodeCompass/util/src/util.cpp",
+        "/home/katilippa/projects/test/CodeCompass/webserver/include/webserver/session.h",
+        "/home/katilippa/projects/test/CodeCompass/service/authentication/include/authenticationservice/authenticationservice.h",
+        "/home/katilippa/projects/test/CodeCompass/webserver/include/webserver/servercontext.h",
+		"/home/katilippa/projects/test/CodeCompass/webserver/include/webserver/authenticator.h"
+    ]
+}

@@ -3,6 +3,7 @@
 
 //#include <algorithm>
 /* #include <map> */
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,7 +18,9 @@
 namespace test {
     std::string bar::Bar() { return "bar"; }; // inline comment
     namespace foo {
-        void Foo(int /* argument */) {};
+        void Foo(int /* argument */) {
+            std::cout << "#include <not_a_real_include_directive>" << std::endl;
+        };
     }
 }
 
